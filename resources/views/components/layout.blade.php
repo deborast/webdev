@@ -31,19 +31,7 @@
             border-radius: 1rem;
         }
 
-        .pagination .page-link {
-            color: #ff7b00;
-            border-color: #ffd5a3;
-        }
-        .pagination .page-link:hover {
-            background-color: #ff7b00;
-            color: #ffffff;
-        }
-        .pagination .active .page-link {
-            background-color: #ff7b00;
-            border-color: #ff7b00;
-            color: #ffffff;
-        }
+
     </style>
 </head>
 
