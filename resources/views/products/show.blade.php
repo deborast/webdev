@@ -30,16 +30,25 @@
                         Rp {{ number_format($product->price, 0, ',', '.') }}
                     </p>
 
-                    <div class="d-flex gap-2 justify-content-center">
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
                         <a href="{{ route('products.index') }}"
                            class="btn btn-dark">
-                           ← Back
+                            ← Back
                         </a>
 
                         <a href="{{ route('products.edit', $product->id) }}"
                            class="btn btn-pink">
-                           Edit
+                            Edit
                         </a>
+
+                        @auth
+                            <form method="POST" action="{{ route('cart.add', $product->id) }}">
+                                @csrf
+                                <button class="btn btn-outline-dark">
+                                    Add to Cart
+                                </button>
+                            </form>
+                        @endauth
                     </div>
 
                 </div>

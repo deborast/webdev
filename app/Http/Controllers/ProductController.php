@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Cart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ProductController extends Controller
 {
@@ -42,12 +44,33 @@ class ProductController extends Controller
             $sortDir = 'asc';
         }
 
-        $products = $query->orderBy($sortBy, $sortDir)->get();
+        $products = $query
+            ->orderBy($sortBy, $sortDir)
+            ->paginate(12)
+            ->withQueryString();
 
         $categories = Category::all();
         $currentCategoryId = $request->category_id;
 
-        return view('products.list', compact('products', 'categories', 'currentCategoryId'));
+        $cartItemsByProduct = [];
+        if (Auth::check()) {
+            $cart = Cart::with('items')
+                ->where('user_id', Auth::id())
+                ->first();
+
+            if ($cart) {
+                $cartItemsByProduct = $cart->items
+                    ->pluck('quantity', 'product_id')
+                    ->toArray();
+            }
+        }
+
+        return view('products.list', compact(
+            'products',
+            'categories',
+            'currentCategoryId',
+            'cartItemsByProduct'
+        ));
     }
 
     public function create()
