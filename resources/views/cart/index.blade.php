@@ -2,7 +2,6 @@
 
     <h3 class="mb-4">Your Cart</h3>
 
-
     @if(session('success'))
         <div class="alert-maroon d-flex align-items-center mb-3">
             <span class="alert-icon">✅</span>
@@ -10,21 +9,20 @@
         </div>
     @endif
 
-
     @if(session('error'))
-        <div class="alert-maroon d-flex align-items-center mb-3" style="background-color:#fce8eb; border-color:#f3b6c2; color:#7b1024;">
+        <div class="alert-maroon d-flex align-items-center mb-3"
+             style="background-color:#fce8eb; border-color:#f3b6c2; color:#7b1024;">
             <span class="alert-icon">⚠️</span>
             <span>{{ session('error') }}</span>
         </div>
     @endif
-
 
     @if($cart->items->count() === 0)
         <div class="alert-maroon d-flex align-items-center mb-3">
             <span class="alert-icon">ℹ️</span>
             <span>
                 Your cart is empty. Go back to
-                <a href="{{ route('products.index') }}" class="text-decoration-underline">
+                <a href="{{ route('products.index') }}" class="link-maroon text-decoration-underline">
                     products
                 </a>
                 to add some drinks.

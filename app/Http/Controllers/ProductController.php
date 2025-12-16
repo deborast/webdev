@@ -123,6 +123,20 @@ class ProductController extends Controller
     {
         $product = Product::with('category')->findOrFail($id);
 
-        return view('products.show', compact('product'));
+        $qtyInCart = 0;
+
+        if (auth()->check()) {
+            $cart = \App\Models\Cart::with('items')
+                ->where('user_id', auth()->id())
+                ->first();
+
+            if ($cart) {
+                $item = $cart->items->firstWhere('product_id', $product->id);
+                $qtyInCart = $item?->quantity ?? 0;
+            }
+        }
+
+        return view('products.show', compact('product', 'qtyInCart'));
     }
+
 }

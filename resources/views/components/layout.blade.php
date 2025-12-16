@@ -12,16 +12,16 @@
         .top-navbar {
             background: #ffffff;
             border-bottom: 1px solid #ddd;
-            min-height: 72px;              /* lebih tinggi dari default */
+            min-height: 72px;
         }
         .brand-text {
             font-weight: 700;
             letter-spacing: 1px;
             color: #5b0b18;
-            font-size: 1.3rem;             /* teks brand lebih besar */
+            font-size: 1.3rem;
         }
         .navbar-brand span.me-2 {
-            font-size: 2rem !important;    /* emoji ☕ lebih besar */
+            font-size: 2rem !important;
         }
         .nav-icon-btn {
             border: none;
@@ -30,7 +30,7 @@
             color: #000;
         }
         .nav-icon-btn span {
-            font-size: 0.8rem;             /* teks kecil di bawah icon sedikit dibesarkan */
+            font-size: 0.8rem;
         }
         .nav-icon-elevated {
             transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
@@ -115,6 +115,32 @@
             background-color: #5b0b18;
         }
 
+        .btn-login-outline {
+            border: 1px solid #000;
+            color: #000;
+            background-color: #fff;
+            padding: 0.25rem 1.25rem;
+        }
+
+        .btn-login-outline:hover {
+            background-color: #000000;
+            color: #ffffff;
+        }
+
+
+        .btn-register-outline {
+            border: 1px solid #5b0b18;
+            color: #5b0b18;
+            background-color: #fff;
+            padding: 0.25rem 1.25rem;
+        }
+
+        .btn-register-outline:hover {
+            background-color: #5b0b18;
+            color: #fff;
+        }
+
+
         .pagination .page-link {
             color: #5b0b18;
         }
@@ -156,6 +182,17 @@
             font-size: 1.1rem;
             margin-right: 0.4rem;
         }
+        .link-maroon {
+            color: #5b0b18;
+            font-weight: 500;
+            text-decoration: none;
+        }
+
+        .link-maroon:hover {
+            color: #3b060f;
+            text-decoration: underline;
+        }
+
     </style>
 </head>
 
@@ -175,12 +212,15 @@
                 <ul class="navbar-nav me-auto"></ul>
 
                 <div class="d-flex align-items-center gap-3">
+                    @auth
                     <button class="nav-icon-btn nav-icon-elevated d-flex flex-column align-items-center"
                             type="button"
                             onclick="window.location.href='{{ route('products.index') }}#search-section'">
                         <div>🔍</div>
                         <span>Search</span>
                     </button>
+                    @endauth
+
                     @auth
                         <a href="{{ route('orders.index') }}"
                            class="nav-icon-btn nav-icon-elevated d-flex flex-column align-items-center text-decoration-none">
@@ -201,19 +241,26 @@
                     @endauth
 
                     @auth
-                        <div class="d-flex flex-column align-items-center">
+                        <a href="{{ route('profile.edit') }}"
+                        class="nav-icon-btn nav-icon-elevated d-flex flex-column align-items-center text-decoration-none">
                             <div>👤</div>
-                            <span style="font-size:0.75rem;">{{ Str::limit(auth()->user()->name, 8) }}</span>
-                        </div>
+                            <span style="font-size:0.75rem;">
+                                {{ Str::limit(auth()->user()->name, 8) }}
+                            </span>
+                        </a>
+
                         <form method="POST" action="{{ route('logout') }}" class="ms-2">
                             @csrf
                             <button class="btn btn-sm btn-outline-dark">Logout</button>
                         </form>
-                    @else
-                        <a href="{{ route('login') }}" class="btn btn-sm btn-outline-dark">
-                            Login
-                        </a>
-                    @endauth
+                        @else
+                            <a href="{{ route('login') }}" class="btn btn-sm btn-login-outline me-2">
+                                Login
+                            </a>
+                            <a href="{{ route('register') }}" class="btn btn-sm btn-register-outline">
+                                Register
+                            </a>
+                        @endauth
                 </div>
             </div>
         </div>

@@ -9,10 +9,10 @@
         </div>
     @endif
 
-
-    @if($orders->count() === 0)
-        <div class="alert alert-info">
-            You have no orders yet.
+    @if ($orders->isEmpty())
+        <div class="alert-maroon d-flex align-items-center justify-content-center">
+            <span class="alert-icon">☕</span>
+            <span>You have not placed any orders yet. Start by adding products to your cart.</span>
         </div>
     @else
         <div class="d-flex flex-column gap-3">
