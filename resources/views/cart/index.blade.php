@@ -10,8 +10,7 @@
     @endif
 
     @if(session('error'))
-        <div class="alert-maroon d-flex align-items-center mb-3"
-             style="background-color:#fce8eb; border-color:#f3b6c2; color:#7b1024;">
+        <div class="alert-maroon d-flex align-items-center mb-3">
             <span class="alert-icon">⚠️</span>
             <span>{{ session('error') }}</span>
         </div>
@@ -19,9 +18,8 @@
 
     @if($cart->items->count() === 0)
         <div class="alert-maroon d-flex align-items-center mb-3">
-            <span class="alert-icon">ℹ️</span>
-            <span>
-                Your cart is empty. Go back to
+            <span class="alert-icon">🛒</span>
+            <span>Your cart is empty. Go back to
                 <a href="{{ route('products.index') }}" class="link-maroon text-decoration-underline">
                     products
                 </a>
@@ -42,11 +40,25 @@
                 </thead>
                 <tbody>
                 @foreach($cart->items as $item)
+                    @php
+                        $product    = $item->product;
+                        $outOfStock = $product && $product->stock <= 0;
+                    @endphp
                     <tr>
                         <td>
                             <strong>{{ $item->name }}</strong><br>
                             <small class="text-muted">
-                                {{ $item->product->category->name ?? '-' }}
+                                {{ $product->category->name ?? '-' }}
+                                @if($product)
+                                    • Stock: {{ $product->stock }}
+                                    @if($outOfStock)
+                                        <span class="text-danger fw-semibold"> (Out of stock)</span>
+                                    @elseif($item->quantity > $product->stock)
+                                        <span class="text-danger fw-semibold">
+                                            (Max {{ $product->stock }})
+                                        </span>
+                                    @endif
+                                @endif
                             </small>
                         </td>
                         <td>
@@ -58,15 +70,19 @@
                                 @csrf
                                 <div class="input-group input-group-sm">
                                     <button class="btn btn-outline-secondary" type="button"
-                                            onclick="let i=this.parentElement.querySelector('input'); i.stepDown(); this.form.submit();">
+                                            onclick="let i=this.parentElement.querySelector('input'); i.stepDown(); this.form.submit();"
+                                            {{ $outOfStock ? 'disabled' : '' }}>
                                         –
                                     </button>
                                     <input type="number" name="quantity"
                                            class="form-control text-center"
-                                           value="{{ $item->quantity }}" min="1"
-                                           onchange="this.form.submit()">
+                                           value="{{ $item->quantity }}"
+                                           min="1"
+                                           @if($product) max="{{ max(1, $product->stock) }}" @endif
+                                           {{ $outOfStock ? 'readonly' : '' }}>
                                     <button class="btn btn-outline-secondary" type="button"
-                                            onclick="let i=this.parentElement.querySelector('input'); i.stepUp(); this.form.submit();">
+                                            onclick="let i=this.parentElement.querySelector('input'); i.stepUp(); this.form.submit();"
+                                            {{ $outOfStock ? 'disabled' : '' }}>
                                         +
                                     </button>
                                 </div>
@@ -79,7 +95,7 @@
                             <form method="POST" action="{{ route('cart.remove', $item->id) }}">
                                 @csrf
                                 <button class="btn btn-sm btn-outline-danger">
-                                    ×
+                                    ✕
                                 </button>
                             </form>
                         </td>
@@ -99,9 +115,8 @@
 
         <div class="d-flex justify-content-between align-items-center">
             <a href="{{ route('products.index') }}" class="btn btn-outline-secondary">
-                ← Continue Shopping
+                Continue Shopping
             </a>
-
             <a href="{{ route('checkout.form') }}" class="btn btn-pink fw-bold">
                 Proceed to Checkout
             </a>

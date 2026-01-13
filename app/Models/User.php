@@ -12,37 +12,50 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public function wishlists()
+    {
+        return $this->hasMany(\App\Models\Wishlist::class);
+    }
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'is_admin',
+        'loyalty_points',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password'          => 'hashed',
+        'is_admin'          => 'boolean',
+    ];
+
+    public function isAdmin(): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return (bool) $this->is_admin;
+    }
+
+    // relasi bwt rekomendasi
+    public function orders()
+    {
+        return $this->hasMany(\App\Models\Order::class);
+    }
+
+    public function orderItems()
+    {
+        return $this->hasManyThrough(
+            \App\Models\OrderItem::class,
+            \App\Models\Order::class,
+            'user_id',   // foreign key di orders
+            'order_id',  // foreign key di order_items
+            'id',        // pk users
+            'id'         // pk orders
+        );
     }
 }

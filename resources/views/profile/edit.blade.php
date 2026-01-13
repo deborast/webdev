@@ -14,6 +14,10 @@
 
             <div class="card shadow-sm border-0 rounded-4 mb-4">
                 <div class="card-body">
+                    <p class="text-muted mb-2">
+                        Loyalty points: <strong>{{ $user->loyalty_points }}</strong>
+                    </p>
+
                     <h5 class="mb-3">Profile Information</h5>
 
                     <form method="POST" action="{{ route('profile.update') }}">

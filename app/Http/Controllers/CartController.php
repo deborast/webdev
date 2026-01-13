@@ -21,9 +21,14 @@ class CartController extends Controller
     public function add(Request $request, $productId)
     {
         $product = Product::findOrFail($productId);
-        $cart = Cart::firstOrCreate(['user_id' => Auth::id()]);
+        $cart    = Cart::firstOrCreate(['user_id' => Auth::id()]);
 
         $qty = (int) $request->input('quantity', 1);
+
+        $price = $product->price;
+        if ($product->discount_percent > 0) {
+            $price = $price - intval($price * $product->discount_percent / 100);
+        }
 
         $item = $cart->items()
             ->where('product_id', $product->id)
@@ -40,7 +45,7 @@ class CartController extends Controller
                 $cart->items()->create([
                     'product_id' => $product->id,
                     'name'       => $product->name,
-                    'price'      => $product->price,
+                    'price'      => $price,
                     'quantity'   => $qty,
                 ]);
             }

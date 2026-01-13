@@ -14,6 +14,8 @@ class Order extends Model
         'shipping_address',
         'payment_method',
         'total',
+        'points_used',
+        'subtotal_before_discount',
     ];
 
     public function user()
@@ -25,4 +27,5 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
 }

@@ -16,6 +16,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->text('shipping_address');
             $table->string('payment_method');
+            $table->integer('points_used')->default(0);
+            $table->integer('subtotal_before_discount')->default(0);
             $table->integer('total');
             $table->timestamps();
         });
