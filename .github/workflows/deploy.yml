@@ -1,0 +1,50 @@
+name: Deploy Laravel ke InfinityFree
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  web-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Ambil Kode dari GitHub
+      uses: actions/checkout@v4
+
+    - name: Setup PHP 8.2
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.2'
+
+    - name: Install Vendor Composer & Build Vite
+      run: |
+        composer install --no-dev --optimize-autoloader --ignore-platform-reqs
+        if [ -f "package.json" ]; then
+          npm install
+          npm run build
+          rm -rf node_modules
+        fi
+
+    - name: Siapkan File .env & Database SQLite
+      run: |
+        echo "APP_NAME=Laravel" > .env
+        echo "APP_ENV=production" >> .env
+        echo "APP_KEY=base64:P43KETVbaYBQqKQchzIn7vQjJyR4O3H456c0tBYDajE=" >> .env
+        echo "APP_DEBUG=true" >> .env
+        echo "APP_URL=http://afl3ccds.site.je" >> .env
+        echo "DB_CONNECTION=sqlite" >> .env
+        echo "SESSION_DRIVER=file" >> .env
+        echo "CACHE_STORE=file" >> .env
+        echo "LOG_CHANNEL=stderr" >> .env
+        mkdir -p database
+        touch database/database.sqlite
+        php artisan migrate --force
+
+    - name: Upload Otomatis ke htdocs InfinityFree
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+      with:
+        server: ftpupload.net
+        username: if0_43118831
+        password: ${{ secrets.FTP_PASSWORD }}
+        server-dir: /htdocs/
+        dangerous-clean-slate: true
