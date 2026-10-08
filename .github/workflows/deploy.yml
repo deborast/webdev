@@ -11,40 +11,34 @@ jobs:
     - name: Ambil Kode dari GitHub
       uses: actions/checkout@v4
 
-    - name: Setup PHP 8.3
+    - name: Setup PHP 8.2
       uses: shivammathur/setup-php@v2
       with:
-        php-version: '8.3'
+        php-version: '8.2'
         extensions: mbstring, xml, ctype, json, pdo, pdo_sqlite, sqlite3
 
-    - name: Rakit Laravel & Upload ke InfinityFree
+    - name: Install Vendor Composer & Build Vite
       run: |
-        # Cari otomatis lokasi folder Laravel (tempat composer.json berada)
-        LARAVEL_FILE=$(find . -maxdepth 2 -name "composer.json" | head -n 1)
-        if [ -z "$LARAVEL_FILE" ]; then
-          echo "File composer.json tidak ditemukan di GitHub!"
-          exit 1
-        fi
-        LARAVEL_DIR=$(dirname "$LARAVEL_FILE")
-        cd "$LARAVEL_DIR"
-
-        # Install Vendor Composer & Build Vite jika ada
-        composer update --no-dev --optimize-autoloader --ignore-platform-reqs --no-interaction
+        composer install --no-dev --optimize-autoloader --ignore-platform-reqs --no-interaction
         if [ -f "package.json" ]; then
           npm install
           npm run build || true
           rm -rf node_modules
         fi
 
-        # Buat file .htaccess
+    - name: Siapkan File .env & Database SQLite
+      run: |
+        mkdir -p storage/framework/sessions storage/framework/views storage/framework/cache/data storage/logs bootstrap/cache database
+        chmod -R 777 storage bootstrap/cache database
+        if [ ! -f "database/database.sqlite" ]; then
+          touch database/database.sqlite
+        fi
         cat << 'EOF' > .htaccess
         <IfModule mod_rewrite.c>
             RewriteEngine On
             RewriteRule ^(.*)$ public/$1 [L]
         </IfModule>
         EOF
-
-        # Buat file .env & Database SQLite
         echo "APP_NAME=Laravel" > .env
         echo "APP_ENV=production" >> .env
         echo "APP_KEY=base64:P43KETVbaYBQqKQchzIn7vQjJyR4O3H456c0tBYDajE=" >> .env
@@ -54,10 +48,9 @@ jobs:
         echo "SESSION_DRIVER=file" >> .env
         echo "CACHE_STORE=file" >> .env
         echo "LOG_CHANNEL=stderr" >> .env
-        mkdir -p database
-        touch database/database.sqlite
         php artisan migrate --force || true
 
-        # Upload langsung ke htdocs menggunakan LFTP (Bebas Error Git 128)
+    - name: Upload Otomatis ke htdocs InfinityFree
+      run: |
         sudo apt-get update && sudo apt-get install -y lftp
         lftp -c "set ftp:ssl-allow no; set net:timeout 30; set net:max-retries 3; open -u if0_43118831,xTXmBkXfpLD ftpupload.net; mirror -R --parallel=10 --exclude-glob .git* --exclude-glob node_modules/ . /htdocs/"
